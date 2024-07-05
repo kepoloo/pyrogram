@@ -16,30 +16,28 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
+import random
+from typing import Optional
+from typing import Union
+
+import pyrogram
 from pyrogram import raw
-from .auto_name import AutoName
 
 
-class ChatMembersFilter(AutoName):
-    """Chat members filter enumeration used in :meth:`~pyrogram.Client.get_chat_members`"""
-
-    SEARCH = raw.types.ChannelParticipantsSearch
-    "Search for members"
-
-    BANNED = raw.types.ChannelParticipantsKicked
-    "Banned members"
-
-    RESTRICTED = raw.types.ChannelParticipantsBanned
-    "Restricted members"
-
-    BOTS = raw.types.ChannelParticipantsBots
-    "Bots"
-
-    RECENT = raw.types.ChannelParticipantsRecent
-    "Recently active members"
-
-    ADMINISTRATORS = raw.types.ChannelParticipantsAdmins
-    "Administrators"
-
-    DELETED = raw.types.ChannelParticipantsBanned
-    "Deleted accounts"
+class CreateGroupCall:
+    async def create_group_call(
+            self: "pyrogram.Client",
+            chat_id: Union[int, str],
+            rtmp_stream: Optional[bool] = False,
+            title: Optional[Union[str, int]] = None,
+            schedule_date: Optional[int] = None
+    ):
+        return await self.invoke(
+            raw.functions.phone.CreateGroupCall(
+                peer=await self.resolve_peer(chat_id),
+                random_id=random.randint(0, 2147483647),
+                rtmp_stream=rtmp_stream,
+                title=title,
+                schedule_date=schedule_date,
+            )
+        )

@@ -198,9 +198,11 @@ def unpack_inline_message_id(inline_message_id: str) -> "raw.base.InputBotInline
         )
 
 
-MIN_CHANNEL_ID = -1002147483647
+MIN_CHANNEL_ID_OLD = -1002147483647
+MIN_CHANNEL_ID = -1009999999999
 MAX_CHANNEL_ID = -1000000000000
-MIN_CHAT_ID = -2147483647
+MIN_CHAT_ID_OLD = -2147483647
+MIN_CHAT_ID = -999999999999
 MAX_USER_ID_OLD = 2147483647
 MAX_USER_ID = 999999999999
 
@@ -341,7 +343,7 @@ def compute_password_check(
 async def parse_text_entities(
     client: "pyrogram.Client",
     text: str,
-    parse_mode: enums.ParseMode,
+    parse_mode: Optional[enums.ParseMode],
     entities: List["types.MessageEntity"]
 ) -> Dict[str, Union[str, List[raw.base.MessageEntity]]]:
     if entities:
@@ -369,3 +371,23 @@ def timestamp_to_datetime(ts: Optional[int]) -> Optional[datetime]:
 
 def datetime_to_timestamp(dt: Optional[datetime]) -> Optional[int]:
     return int(dt.timestamp()) if dt else None
+
+
+def get_reply_head_fm(message_thread_id: int, reply_to_message_id: int, partial_reply: str = None) -> raw.types.InputReplyToMessage:
+    reply_to = None
+    if (
+        reply_to_message_id or
+        message_thread_id
+    ):
+        if not reply_to_message_id:
+            reply_to = raw.types.InputReplyToMessage(
+                reply_to_msg_id=message_thread_id,
+                top_msg_id=message_thread_id
+            )
+        else:
+            reply_to = raw.types.InputReplyToMessage(
+                reply_to_msg_id=reply_to_message_id,
+                top_msg_id=message_thread_id,
+                quote_text=partial_reply
+            )
+    return reply_to

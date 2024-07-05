@@ -1,5 +1,5 @@
 #  Pyrogram - Telegram MTProto API Client Library for Python
-#  Copyright (C) 2017-present Dan <https://github.com/delivrance>
+#  Copyright (C) 2017-2022 Dan <https://github.com/delivrance>
 #
 #  This file is part of Pyrogram.
 #
@@ -15,42 +15,42 @@
 #
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
-
 from typing import Union
 
 import pyrogram
 from pyrogram import raw
 
 
-class BlockUser:
-    async def block_user(
-        self: "pyrogram.Client",
-        user_id: Union[int, str],
-        my_stories_from: Union[bool, None] = None
+class SetChatReaction:
+    async def set_chat_reactions(
+            self: "pyrogram.Client",
+            chat_id: Union[int, str],
+            available_reactions: list
     ) -> bool:
-        """Block a user.
+        """Set the default emoji to use in chat.
 
-        .. include:: /_includes/usable-by/users.rst
+        Use :meth:`~pyrogram.Client.set_chat_reactions` to set one or more emoji for the chat to react to messages..
 
         Parameters:
-            user_id (``int`` | ``str``)::
-                Unique identifier (int) or username (str) of the target user.
-                For you yourself you can simply use "me" or "self".
-                For a contact that exists in your Telegram address book you can use his phone number (str).
+            chat_id (``int`` | ``str``):
+                Unique identifier (int) or username (str) of the target chat.
+
+            available_reactions: List of ``str``
 
         Returns:
-            ``bool``: True on success
+            ``bool``: On success, true is returned
 
         Example:
             .. code-block:: python
 
-                await app.block_user(user_id)
+                app.set_chat_reactions(chat_id, [❤️, 👍])
         """
-        return bool(
+        try:
             await self.invoke(
-                raw.functions.contacts.Block(
-                    id=await self.resolve_peer(user_id),
-                    my_stories_from=my_stories_from
+                raw.functions.messages.SetChatAvailableReactions(
+                    peer=await self.resolve_peer(chat_id),
+                    available_reactions=available_reactions,
                 )
             )
-        )
+        except Exception:
+            return False

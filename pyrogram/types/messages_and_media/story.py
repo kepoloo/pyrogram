@@ -16,30 +16,40 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
+import pyrogram
 from pyrogram import raw
-from .auto_name import AutoName
+from ..object import Object
 
 
-class ChatMembersFilter(AutoName):
-    """Chat members filter enumeration used in :meth:`~pyrogram.Client.get_chat_members`"""
+class Story(Object):
+    """A Story.
 
-    SEARCH = raw.types.ChannelParticipantsSearch
-    "Search for members"
+    Parameters:
+        peer: The peer of the story.
+        chat_id: The chat ID of the story.
+        via_mention: Whether the story is via mention.
 
-    BANNED = raw.types.ChannelParticipantsKicked
-    "Banned members"
+    """
 
-    RESTRICTED = raw.types.ChannelParticipantsBanned
-    "Restricted members"
+    def __init__(
+            self,
+            *,
+            client: "pyrogram.Client" = None,
+            peer,
+            chat_id,
+            via_mention,
+    ):
+        super().__init__(client)
 
-    BOTS = raw.types.ChannelParticipantsBots
-    "Bots"
+        self.peer = peer
+        self.chat_id = chat_id
+        self.via_mention = via_mention
 
-    RECENT = raw.types.ChannelParticipantsRecent
-    "Recently active members"
-
-    ADMINISTRATORS = raw.types.ChannelParticipantsAdmins
-    "Administrators"
-
-    DELETED = raw.types.ChannelParticipantsBanned
-    "Deleted accounts"
+    @staticmethod
+    def _parse(client, story: "raw.types.MessageMediaStory"):
+        return Story(
+            client=client,
+            peer=story.peer,
+            chat_id=story.id,
+            via_mention=story.via_mention
+        )

@@ -330,6 +330,7 @@ class Message(Object, Update):
         service: "enums.MessageServiceType" = None,
         scheduled: bool = None,
         from_scheduled: bool = None,
+        edit_hide: bool = False,
         media: "enums.MessageMediaType" = None,
         edit_date: datetime = None,
         media_group_id: str = None,
@@ -409,6 +410,7 @@ class Message(Object, Update):
         self.from_scheduled = from_scheduled
         self.media = media
         self.edit_date = edit_date
+        self.edit_hide = edit_hide
         self.media_group_id = media_group_id
         self.author_signature = author_signature
         self.has_protected_content = has_protected_content
@@ -797,6 +799,7 @@ class Message(Object, Update):
                 scheduled=is_scheduled,
                 from_scheduled=message.from_scheduled,
                 media=media_type,
+                edit_hide=message.edit_hide,
                 edit_date=utils.timestamp_to_datetime(message.edit_date),
                 media_group_id=message.grouped_id,
                 photo=photo,
@@ -824,8 +827,13 @@ class Message(Object, Update):
             )
 
             if message.reply_to:
-                parsed_message.reply_to_message_id = message.reply_to.reply_to_msg_id
-                parsed_message.reply_to_top_message_id = message.reply_to.reply_to_top_id
+                parsed_message.reply_to_message_id = None
+                parsed_message.reply_to_top_message_id = None
+                if isinstance(message.reply_to, raw.types.MessageReplyHeader):
+                    parsed_message.reply_to_message_id = message.reply_to.reply_to_msg_id
+                    parsed_message.reply_to_top_message_id = message.reply_to.reply_to_top_id
+                if isinstance(message.reply_to, raw.types.MessageReplyStoryHeader):
+                    parsed_message.reply_to_message_id = message.reply_to.story_id
 
                 if replies:
                     try:
@@ -896,6 +904,7 @@ class Message(Object, Update):
         disable_web_page_preview: bool = None,
         disable_notification: bool = None,
         reply_to_message_id: int = None,
+        partial_reply: str = None,
         schedule_date: datetime = None,
         protect_content: bool = None,
         reply_markup=None
@@ -945,6 +954,10 @@ class Message(Object, Update):
             reply_to_message_id (``int``, *optional*):
                 If the message is a reply, ID of the original message.
 
+            partial_reply (``str``, *optional*):
+                Text to quote.
+                for reply_to_message only.
+
             schedule_date (:py:obj:`~datetime.datetime`, *optional*):
                 Date when the message will be automatically sent.
 
@@ -975,6 +988,7 @@ class Message(Object, Update):
             disable_web_page_preview=disable_web_page_preview,
             disable_notification=disable_notification,
             reply_to_message_id=reply_to_message_id,
+            partial_reply=partial_reply,
             schedule_date=schedule_date,
             protect_content=protect_content,
             reply_markup=reply_markup
@@ -1002,6 +1016,7 @@ class Message(Object, Update):
             "types.ForceReply"
         ] = None,
         reply_to_message_id: int = None,
+        partial_reply: str = None,
         progress: Callable = None,
         progress_args: tuple = ()
     ) -> "Message":
@@ -1068,6 +1083,10 @@ class Message(Object, Update):
             reply_to_message_id (``int``, *optional*):
                 If the message is a reply, ID of the original message.
 
+            partial_reply (``str``, *optional*):
+                Text to quote.
+                for reply_to_message only.
+
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardRemove` | :obj:`~pyrogram.types.ForceReply`, *optional*):
                 Additional interface options. An object for an inline keyboard, custom reply keyboard,
                 instructions to remove reply keyboard or to force a reply from the user.
@@ -1121,6 +1140,7 @@ class Message(Object, Update):
             thumb=thumb,
             disable_notification=disable_notification,
             reply_to_message_id=reply_to_message_id,
+            partial_reply=partial_reply,
             reply_markup=reply_markup,
             progress=progress,
             progress_args=progress_args
@@ -1139,6 +1159,7 @@ class Message(Object, Update):
         thumb: str = None,
         disable_notification: bool = None,
         reply_to_message_id: int = None,
+        partial_reply: str = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -1208,6 +1229,10 @@ class Message(Object, Update):
             reply_to_message_id (``int``, *optional*):
                 If the message is a reply, ID of the original message.
 
+            partial_reply (``str``, *optional*):
+                Text to quote.
+                for reply_to_message only.
+
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardRemove` | :obj:`~pyrogram.types.ForceReply`, *optional*):
                 Additional interface options. An object for an inline keyboard, custom reply keyboard,
                 instructions to remove reply keyboard or to force a reply from the user.
@@ -1260,6 +1285,7 @@ class Message(Object, Update):
             thumb=thumb,
             disable_notification=disable_notification,
             reply_to_message_id=reply_to_message_id,
+            partial_reply=partial_reply,
             reply_markup=reply_markup,
             progress=progress,
             progress_args=progress_args
@@ -1274,6 +1300,7 @@ class Message(Object, Update):
         caption_entities: List["types.MessageEntity"] = None,
         disable_notification: bool = None,
         reply_to_message_id: int = None,
+        partial_reply: str = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -1324,6 +1351,10 @@ class Message(Object, Update):
             reply_to_message_id (``int``, *optional*):
                 If the message is a reply, ID of the original message.
 
+            partial_reply (``str``, *optional*):
+                Text to quote.
+                for reply_to_message only.
+
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardRemove` | :obj:`~pyrogram.types.ForceReply`, *optional*):
                 Additional interface options. An object for an inline keyboard, custom reply keyboard,
                 instructions to remove reply keyboard or to force a reply from the user.
@@ -1348,6 +1379,7 @@ class Message(Object, Update):
             caption_entities=caption_entities,
             disable_notification=disable_notification,
             reply_to_message_id=reply_to_message_id,
+            partial_reply=partial_reply,
             reply_markup=reply_markup
         )
 
@@ -1397,6 +1429,7 @@ class Message(Object, Update):
         vcard: str = "",
         disable_notification: bool = None,
         reply_to_message_id: int = None,
+        partial_reply: str = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -1446,6 +1479,10 @@ class Message(Object, Update):
             reply_to_message_id (``int``, *optional*):
                 If the message is a reply, ID of the original message.
 
+            partial_reply (``str``, *optional*):
+                Text to quote.
+                for reply_to_message only.
+
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardRemove` | :obj:`~pyrogram.types.ForceReply`, *optional*):
                 Additional interface options. An object for an inline keyboard, custom reply keyboard,
                 instructions to remove reply keyboard or to force a reply from the user.
@@ -1470,6 +1507,7 @@ class Message(Object, Update):
             vcard=vcard,
             disable_notification=disable_notification,
             reply_to_message_id=reply_to_message_id,
+            partial_reply=partial_reply,
             reply_markup=reply_markup
         )
 
@@ -1485,6 +1523,7 @@ class Message(Object, Update):
         force_document: bool = None,
         disable_notification: bool = None,
         reply_to_message_id: int = None,
+        partial_reply: str = None,
         schedule_date: datetime = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
@@ -1554,6 +1593,10 @@ class Message(Object, Update):
 
             reply_to_message_id (``int``, *optional*):
                 If the message is a reply, ID of the original message.
+
+            partial_reply (``str``, *optional*):
+                Text to quote.
+                for reply_to_message only.
             
             schedule_date (:py:obj:`~datetime.datetime`, *optional*):
                 Date when the message will be automatically sent.
@@ -1609,6 +1652,7 @@ class Message(Object, Update):
             force_document=force_document,
             disable_notification=disable_notification,
             reply_to_message_id=reply_to_message_id,
+            partial_reply=partial_reply,
             schedule_date=schedule_date,
             reply_markup=reply_markup,
             progress=progress,
@@ -1690,7 +1734,8 @@ class Message(Object, Update):
         result_id: str,
         quote: bool = None,
         disable_notification: bool = None,
-        reply_to_message_id: int = None
+        reply_to_message_id: int = None,
+        partial_reply: str = None
     ) -> "Message":
         """Bound method *reply_inline_bot_result* of :obj:`~pyrogram.types.Message`.
 
@@ -1728,6 +1773,10 @@ class Message(Object, Update):
             reply_to_message_id (``bool``, *optional*):
                 If the message is a reply, ID of the original message.
 
+            partial_reply (``str``, *optional*):
+                Text to quote.
+                for reply_to_message only.
+
         Returns:
             On success, the sent Message is returned.
 
@@ -1745,7 +1794,8 @@ class Message(Object, Update):
             query_id=query_id,
             result_id=result_id,
             disable_notification=disable_notification,
-            reply_to_message_id=reply_to_message_id
+            reply_to_message_id=reply_to_message_id,
+            partial_reply=partial_reply
         )
 
     async def reply_location(
@@ -1755,6 +1805,7 @@ class Message(Object, Update):
         quote: bool = None,
         disable_notification: bool = None,
         reply_to_message_id: int = None,
+        partial_reply: str = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -1798,6 +1849,10 @@ class Message(Object, Update):
             reply_to_message_id (``int``, *optional*):
                 If the message is a reply, ID of the original message
 
+            partial_reply (``str``, *optional*):
+                Text to quote.
+                for reply_to_message only.
+
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardRemove` | :obj:`~pyrogram.types.ForceReply`, *optional*):
                 Additional interface options. An object for an inline keyboard, custom reply keyboard,
                 instructions to remove reply keyboard or to force a reply from the user.
@@ -1820,6 +1875,7 @@ class Message(Object, Update):
             longitude=longitude,
             disable_notification=disable_notification,
             reply_to_message_id=reply_to_message_id,
+            partial_reply=partial_reply,
             reply_markup=reply_markup
         )
 
@@ -1828,7 +1884,8 @@ class Message(Object, Update):
         media: List[Union["types.InputMediaPhoto", "types.InputMediaVideo"]],
         quote: bool = None,
         disable_notification: bool = None,
-        reply_to_message_id: int = None
+        reply_to_message_id: int = None,
+        partial_reply: str = None
     ) -> List["types.Message"]:
         """Bound method *reply_media_group* of :obj:`~pyrogram.types.Message`.
 
@@ -1864,6 +1921,10 @@ class Message(Object, Update):
             reply_to_message_id (``int``, *optional*):
                 If the message is a reply, ID of the original message.
 
+            partial_reply (``str``, *optional*):
+                Text to quote.
+                for reply_to_message only.
+
         Returns:
             On success, a :obj:`~pyrogram.types.Messages` object is returned containing all the
             single messages sent.
@@ -1881,7 +1942,8 @@ class Message(Object, Update):
             chat_id=self.chat.id,
             media=media,
             disable_notification=disable_notification,
-            reply_to_message_id=reply_to_message_id
+            reply_to_message_id=reply_to_message_id,
+            partial_reply=partial_reply
         )
 
     async def reply_photo(
@@ -1895,6 +1957,7 @@ class Message(Object, Update):
         ttl_seconds: int = None,
         disable_notification: bool = None,
         reply_to_message_id: int = None,
+        partial_reply: str = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -1957,6 +2020,10 @@ class Message(Object, Update):
             reply_to_message_id (``int``, *optional*):
                 If the message is a reply, ID of the original message.
 
+            partial_reply (``str``, *optional*):
+                Text to quote.
+                for reply_to_message only.
+
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardRemove` | :obj:`~pyrogram.types.ForceReply`, *optional*):
                 Additional interface options. An object for an inline keyboard, custom reply keyboard,
                 instructions to remove reply keyboard or to force a reply from the user.
@@ -2007,6 +2074,7 @@ class Message(Object, Update):
             ttl_seconds=ttl_seconds,
             disable_notification=disable_notification,
             reply_to_message_id=reply_to_message_id,
+            partial_reply=partial_reply,
             reply_markup=reply_markup,
             progress=progress,
             progress_args=progress_args
@@ -2030,6 +2098,7 @@ class Message(Object, Update):
         disable_notification: bool = None,
         protect_content: bool = None,
         reply_to_message_id: int = None,
+        partial_reply: str = None,
         schedule_date: datetime = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
@@ -2117,6 +2186,10 @@ class Message(Object, Update):
             reply_to_message_id (``int``, *optional*):
                 If the message is a reply, ID of the original message.
 
+            partial_reply (``str``, *optional*):
+                Text to quote.
+                for reply_to_message only.
+
             schedule_date (:py:obj:`~datetime.datetime`, *optional*):
                 Date when the message will be automatically sent.
 
@@ -2153,6 +2226,7 @@ class Message(Object, Update):
             disable_notification=disable_notification,
             protect_content=protect_content,
             reply_to_message_id=reply_to_message_id,
+            partial_reply=partial_reply,
             schedule_date=schedule_date,
             reply_markup=reply_markup
         )
@@ -2163,6 +2237,7 @@ class Message(Object, Update):
         quote: bool = None,
         disable_notification: bool = None,
         reply_to_message_id: int = None,
+        partial_reply: str = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -2206,6 +2281,10 @@ class Message(Object, Update):
 
             reply_to_message_id (``int``, *optional*):
                 If the message is a reply, ID of the original message.
+
+            partial_reply (``str``, *optional*):
+                Text to quote.
+                for reply_to_message only.
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardRemove` | :obj:`~pyrogram.types.ForceReply`, *optional*):
                 Additional interface options. An object for an inline keyboard, custom reply keyboard,
@@ -2252,6 +2331,7 @@ class Message(Object, Update):
             sticker=sticker,
             disable_notification=disable_notification,
             reply_to_message_id=reply_to_message_id,
+            partial_reply=partial_reply,
             reply_markup=reply_markup,
             progress=progress,
             progress_args=progress_args
@@ -2268,6 +2348,7 @@ class Message(Object, Update):
         foursquare_type: str = "",
         disable_notification: bool = None,
         reply_to_message_id: int = None,
+        partial_reply: str = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -2326,6 +2407,10 @@ class Message(Object, Update):
             reply_to_message_id (``int``, *optional*):
                 If the message is a reply, ID of the original message
 
+            partial_reply (``str``, *optional*):
+                Text to quote.
+                for reply_to_message only.
+
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardRemove` | :obj:`~pyrogram.types.ForceReply`, *optional*):
                 Additional interface options. An object for an inline keyboard, custom reply keyboard,
                 instructions to remove reply keyboard or to force a reply from the user.
@@ -2352,6 +2437,7 @@ class Message(Object, Update):
             foursquare_type=foursquare_type,
             disable_notification=disable_notification,
             reply_to_message_id=reply_to_message_id,
+            partial_reply=partial_reply,
             reply_markup=reply_markup
         )
 
@@ -2371,6 +2457,7 @@ class Message(Object, Update):
         supports_streaming: bool = True,
         disable_notification: bool = None,
         reply_to_message_id: int = None,
+        partial_reply: str = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -2451,6 +2538,10 @@ class Message(Object, Update):
             reply_to_message_id (``int``, *optional*):
                 If the message is a reply, ID of the original message.
 
+            partial_reply (``str``, *optional*):
+                Text to quote.
+                for reply_to_message only.
+
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardRemove` | :obj:`~pyrogram.types.ForceReply`, *optional*):
                 Additional interface options. An object for an inline keyboard, custom reply keyboard,
                 instructions to remove reply keyboard or to force a reply from the user.
@@ -2506,6 +2597,7 @@ class Message(Object, Update):
             supports_streaming=supports_streaming,
             disable_notification=disable_notification,
             reply_to_message_id=reply_to_message_id,
+            partial_reply=partial_reply,
             reply_markup=reply_markup,
             progress=progress,
             progress_args=progress_args
@@ -2520,6 +2612,7 @@ class Message(Object, Update):
         thumb: str = None,
         disable_notification: bool = None,
         reply_to_message_id: int = None,
+        partial_reply: str = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -2576,6 +2669,10 @@ class Message(Object, Update):
             reply_to_message_id (``int``, *optional*):
                 If the message is a reply, ID of the original message
 
+            partial_reply (``str``, *optional*):
+                Text to quote.
+                for reply_to_message only.
+
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardRemove` | :obj:`~pyrogram.types.ForceReply`, *optional*):
                 Additional interface options. An object for an inline keyboard, custom reply keyboard,
                 instructions to remove reply keyboard or to force a reply from the user.
@@ -2624,6 +2721,7 @@ class Message(Object, Update):
             thumb=thumb,
             disable_notification=disable_notification,
             reply_to_message_id=reply_to_message_id,
+            partial_reply=partial_reply,
             reply_markup=reply_markup,
             progress=progress,
             progress_args=progress_args
@@ -2639,6 +2737,7 @@ class Message(Object, Update):
         duration: int = 0,
         disable_notification: bool = None,
         reply_to_message_id: int = None,
+        partial_reply: str = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -2696,6 +2795,10 @@ class Message(Object, Update):
             reply_to_message_id (``int``, *optional*):
                 If the message is a reply, ID of the original message
 
+            partial_reply (``str``, *optional*):
+                Text to quote.
+                for reply_to_message only.
+
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardRemove` | :obj:`~pyrogram.types.ForceReply`, *optional*):
                 Additional interface options. An object for an inline keyboard, custom reply keyboard,
                 instructions to remove reply keyboard or to force a reply from the user.
@@ -2745,6 +2848,7 @@ class Message(Object, Update):
             duration=duration,
             disable_notification=disable_notification,
             reply_to_message_id=reply_to_message_id,
+            partial_reply=partial_reply,
             reply_markup=reply_markup,
             progress=progress,
             progress_args=progress_args

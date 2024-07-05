@@ -140,11 +140,17 @@ class User(Object, Update):
             The list of reasons why this bot might be unavailable to some users.
             This field is available only in case *is_restricted* is True.
 
+        full_name (``str``, *optional*):
+            User's or bot's full name.
+
         mention (``str``, *property*):
             Generate a text mention for this user.
             You can use ``user.mention()`` to mention the user using their first name (styled using html), or
             ``user.mention("another name")`` for a custom name. To choose a different style
             ("html" or "md"/"markdown") use ``user.mention(style="md")``.
+
+        usernames (List of :obj:`~pyrogram.types.Username`, *optional*):
+            The list of user's collectible (and basic) usernames if availables.
     """
 
     def __init__(
@@ -174,7 +180,8 @@ class User(Object, Update):
         dc_id: int = None,
         phone_number: str = None,
         photo: "types.ChatPhoto" = None,
-        restrictions: List["types.Restriction"] = None
+        restrictions: List["types.Restriction"] = None,
+        usernames: List["types.Username"] = None
     ):
         super().__init__(client)
 
@@ -202,6 +209,11 @@ class User(Object, Update):
         self.phone_number = phone_number
         self.photo = photo
         self.restrictions = restrictions
+        self.usernames = usernames
+
+    @property
+    def full_name(self) -> str:
+        return " ".join(filter(None, [self.first_name, self.last_name])) or None
 
     @property
     def mention(self):
@@ -239,6 +251,7 @@ class User(Object, Update):
             phone_number=user.phone,
             photo=types.ChatPhoto._parse(client, user.photo, user.id, user.access_hash),
             restrictions=types.List([types.Restriction._parse(r) for r in user.restriction_reason]) or None,
+            usernames=types.List([types.Username._parse(r) for r in user.usernames]) or None,
             client=client
         )
 

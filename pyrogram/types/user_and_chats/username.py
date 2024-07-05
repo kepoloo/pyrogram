@@ -17,29 +17,35 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 from pyrogram import raw
-from .auto_name import AutoName
+from ..object import Object
 
 
-class ChatMembersFilter(AutoName):
-    """Chat members filter enumeration used in :meth:`~pyrogram.Client.get_chat_members`"""
+class Username(Object):
+    """A user's or chat's username.
 
-    SEARCH = raw.types.ChannelParticipantsSearch
-    "Search for members"
+    Parameters:
+        username (``str``):
+            User's or chat's username.
 
-    BANNED = raw.types.ChannelParticipantsKicked
-    "Banned members"
+        editable (``bool``, *optional*):
+            True, if it's a basic username; False, if it's a collectible username.
 
-    RESTRICTED = raw.types.ChannelParticipantsBanned
-    "Restricted members"
+        active (``bool``, *optional*):
+            True, if the collectible username is active.
+    
+    """
 
-    BOTS = raw.types.ChannelParticipantsBots
-    "Bots"
+    def __init__(self, *, username: str, editable: bool = None, active: bool = None):
+        super().__init__(None)
 
-    RECENT = raw.types.ChannelParticipantsRecent
-    "Recently active members"
+        self.username = username
+        self.editable = editable
+        self.active = active
 
-    ADMINISTRATORS = raw.types.ChannelParticipantsAdmins
-    "Administrators"
-
-    DELETED = raw.types.ChannelParticipantsBanned
-    "Deleted accounts"
+    @staticmethod
+    def _parse(username: "raw.types.Username") -> "Username":
+        return Username(
+            username=username.username,
+            editable=username.editable,
+            active=username.active
+        )
