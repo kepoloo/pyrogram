@@ -184,8 +184,8 @@ class Client(Methods):
             Defaults to 1.
     """
 
-    APP_VERSION = f"TangoUB {__version__}"
-    DEVICE_MODEL = f"Ubuntu LTS"
+    APP_VERSION = f"Zeus-Userbot {__version__}"
+    DEVICE_MODEL = f"ZeusPhone"
     SYSTEM_VERSION = f"Linux 64"
 
     LANG_CODE = "en"
