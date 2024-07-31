@@ -184,8 +184,8 @@ class Client(Methods):
             Defaults to 1.
     """
 
-    APP_VERSION = f"Zeus-Userbot {__version__}"
-    DEVICE_MODEL = f"ZeusPhone"
+    APP_VERSION = f"ArgusPython {__version__}"
+    DEVICE_MODEL = f"ArgusUbot"
     SYSTEM_VERSION = f"Linux 64"
 
     LANG_CODE = "en"
