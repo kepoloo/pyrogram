@@ -184,8 +184,8 @@ class Client(Methods):
             Defaults to 1.
     """
 
-    APP_VERSION = f"ArgusPython {__version__}"
-    DEVICE_MODEL = f"ArgusUbot"
+    APP_VERSION = f"Telegram {__version__}"
+    DEVICE_MODEL = f"Telegram"
     SYSTEM_VERSION = f"Linux 64"
 
     LANG_CODE = "en"
